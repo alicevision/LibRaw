@@ -12466,13 +12466,11 @@ void CLASS parse_makernote(int base, int uptag)
       FORC3 cam_mul[(c << 1 | c >> 1) & 3] = getreal(type);
     if (tag == 0xd && type == 7 && get2() == 0xaaaa)
     {
-#if 0 /* Canon rotation data is handled by EXIF.Orientation */
       for (c = i = 2; (ushort)c != 0xbbbb && i < len; i++)
         c = c << 8 | fgetc(ifp);
       while ((i += 4) < len - 5)
         if (get4() == 257 && (i = len) && (c = (get4(), fgetc(ifp))) < 3)
-          flip = "065"[c] - '0';
-#endif
+          imgdata.makernotes.canon.MakernotesFlip  = "065"[c] - '0';
     }
 
 #ifndef LIBRAW_LIBRARY_BUILD
@@ -19841,6 +19839,9 @@ void CLASS identify()
         strcpy(model, unique[i].t_model);
       }
   }
+
+  if(!strncmp(make, "Canon", 5) && !tiff_flip && imgdata.makernotes.canon.MakernotesFlip )
+     tiff_flip =  imgdata.makernotes.canon.MakernotesFlip ;
 
   if (!strncasecmp(make, "Sony", 4) && unique_id)
   {
